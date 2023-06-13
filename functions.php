@@ -13,9 +13,9 @@ function filterRequest($requestname)
 
 function getAllData($table, $where = null, $values = null)
 {
-    global $con;
+    global $conn;
     $data = array();
-    $stmt = $con->prepare("SELECT  * FROM $table WHERE   $where ");
+    $stmt = $conn->prepare("SELECT  * FROM $table WHERE   $where ");
     $stmt->execute($values);
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $count  = $stmt->rowCount();
@@ -25,6 +25,33 @@ function getAllData($table, $where = null, $values = null)
         echo json_encode(array("status" => "failure"));
     }
     return $count;
+}
+
+function getAllData2(PDO $connection, string $table, ?string $where = null, ?array $values = null)
+{
+    try {
+        $data = [];
+        
+        $query = "SELECT * FROM $table ";
+        if (!empty($where)) {
+            $query .= " WHERE $where ";
+        }
+        
+        $stmt = $connection->prepare($query);
+        $stmt->execute($values);
+        
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $count = $stmt->rowCount();
+        
+        $message = ($count > 0) ? "success" : "failure";
+        $response = ["status" => $message, "data" => $data];
+        // echo json_encode($data);
+
+        return json_encode($data);
+    } catch (PDOException $e) {
+        // عرض رسالة الخطأ للمستخدم أو تخزينها في ملف بوج.
+        die("Error occurred: ".$e->getMessage());
+    }
 }
 
 function insertData($table, $data, $json = true)
@@ -149,3 +176,10 @@ function printFailuer($message="none")
 {
     echo json_encode(array("status" => "failure" ,"message" => $message));
 }
+
+// senfMail($to, $title, $body){
+
+// $hreader = "From: support@yousefhajebb.com"."/n"."CC:youseflwdaw@gmail.com";
+// mail($to,$title, $title,$hreader);
+
+// }
